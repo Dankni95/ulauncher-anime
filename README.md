@@ -1,4 +1,4 @@
-#Ulauncher anime extension for linux
+# uLauncher anime extension for linux
 
 ### Little tool written in python to watch anime using Ulauncher (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
@@ -77,4 +77,4 @@ Paste it in new terminal window and run keyword `ani`.
 
 
 # Credits
-#### Most of the code is from https://github.com/sdaqo/anipy-cli
+#### This extension uses https://github.com/sdaqo/anipy-cli 
