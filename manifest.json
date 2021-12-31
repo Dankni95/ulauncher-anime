@@ -1,0 +1,19 @@
+{
+	"required_api_version": "^2.0.0",
+	"name": "Ulauncher Anime",
+	"description": "Watch anime the right way",
+	"developer_name": "Dankni95",
+	"icon": "images/icon.png",
+	"options": {
+		"query_debounce": 0.1
+	},
+	"preferences": [
+		{
+			"id": "ulauncher anime",
+			"type": "keyword",
+			"name": "Ulancher Anime Extension",
+			"description": "Extension keyword",
+			"default_value": "ani"
+		}
+	]
+}
