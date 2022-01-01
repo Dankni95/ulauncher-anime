@@ -28,7 +28,7 @@ Open uLauncher preferences window -> extensions -> add extension and paste the f
 
 ## Install Dependencies
 
-#### [Note] Just do `make deps` to install.
+#### [Note] `cd ~/.local/share/ulauncher/extensions/com.github.dankni95.ulauncher-anime` and run `make deps` to install dependencies.
  
 ### 1. Other dependencies
 Get Python from: https://www.python.org/downloads/
