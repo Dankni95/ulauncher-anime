@@ -26,33 +26,12 @@ from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.shared.action.SetUserQueryAction import SetUserQueryAction
 
 
-class PlayerMain(Extension):
+class UlauncherAnime(Extension):
     def __init__(self):
-        super(PlayerMain, self).__init__()
+        super(UlauncherAnime, self).__init__()
         self.logger.info("Inializing Extension")
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
         self.subscribe(ItemEnterEvent, ItemEnterEventListener())
-
-    def render_main_page(self, action):
-        print("main page")
-        theme = self.preferences['change_icon_theme']
-        animes = []
-        print(action)
-        if action is None:
-            animes.append(ExtensionResultItem(icon="images/icon.png", name="Ulauncher anime", description="Keep typing to search anime",
-                                              on_enter=DoNothingAction()))
-        if action == "error":
-            animes.append(ExtensionResultItem(icon="images/icon.png", name="Unexpected error", description="feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues",
-                                              on_enter=DoNothingAction()))
-        if action == "webdriver error":
-            animes.append(ExtensionResultItem(icon="images/icon.png", name="Webdriver error", description="Did you install dependencies? : https://github.com/sdaqo/anipy-cli/issues",
-                                              on_enter=DoNothingAction()))
-        if action == "close ulauncher":
-            return RenderResultListAction(None)
-        
-        
-
-        return RenderResultListAction(animes)
 
     """query"""
 
@@ -126,7 +105,7 @@ class PlayerMain(Extension):
         try:
             link = links[int(which_anime) - 1]
         except:
-            self.render_main_page("error")
+            return "error"
 
         link = base_url + link.replace("/", "", 1)
 
@@ -210,7 +189,7 @@ class PlayerMain(Extension):
                             executable_path=GeckoDriverManager().install(), service_log_path=os.devnull)
 
                 except:
-                    self.render_main_page("webdriver error")
+                    return "error"
 
                 browser.get(embed_url)
                 # start the player in browser so the video-url is generated
@@ -231,12 +210,7 @@ class PlayerMain(Extension):
                 browser.quit()
 
         except Exception as e:
-            try:
-                browser.quit()
-            except:
-                pass
-
-            self.render_main_page("error")
+            return "error"
 
         return link
 
@@ -254,11 +228,10 @@ class PlayerMain(Extension):
 
         except sp.CalledProcessError as grepexc:
             print("error code", grepexc.returncode, grepexc.output)
-            self.render_main_page("error")
             return "error"
 
         return "Success"
 
 
 if __name__ == '__main__':
-    PlayerMain().run()
+    UlauncherAnime().run()
