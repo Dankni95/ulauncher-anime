@@ -1,5 +1,8 @@
 # uLauncher anime extension for linux
 
+![final_61d05ad639a8fe0036074586_820807](https://user-images.githubusercontent.com/71786017/147852030-b9df1993-307c-4471-9722-ac30b77cc807.gif)
+
+
 ### Little tool written in python to watch anime using Ulauncher (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
 
