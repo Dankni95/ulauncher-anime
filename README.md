@@ -54,6 +54,11 @@ Please have one of these browsers installed: Firefox/Chrome/Chromium
 Start uLauncher and type `ani`.
 To search `ani s <your anime>`
 
+## History
+ `ani h ` shows next episode of previously watched anime.<br>
+![image](https://user-images.githubusercontent.com/71786017/147886901-4c66d977-d7f0-4831-a252-05a8514642d2.png)
+
+
 
 ## Development
 Git clone this repo.
