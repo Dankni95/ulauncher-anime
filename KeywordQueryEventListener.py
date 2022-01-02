@@ -5,6 +5,7 @@ from ulauncher.api.shared.action.DoNothingAction import DoNothingAction
 from ulauncher.api.shared.action.SetUserQueryAction import SetUserQueryAction
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 from ulauncher.api.shared.item.ExtensionSmallResultItem import ExtensionSmallResultItem
+from threading import Thread
 
 
 class KeywordQueryEventListener(EventListener):
@@ -29,8 +30,8 @@ class KeywordQueryEventListener(EventListener):
                 animes.append(ExtensionResultItem(icon="images/icon.png", name=link[0], description="Select anime",
                                                   on_enter=SetUserQueryAction("ani type episode nr > ")))
             return RenderResultListAction(animes)
-        elif str(args).startswith("type episode nr > ") and str(args)[-1].isdigit():
 
+        elif str(args).startswith("type episode nr > ") and str(args)[-1].isdigit():
             if str(args) == "type episode nr > 0":
                 selection = str(args).replace("type episode nr > 0", "")
                 selection = 0
@@ -42,16 +43,38 @@ class KeywordQueryEventListener(EventListener):
             episodes = extension.episode(url)
 
             animes = []
-            if episodes is None:
-                animes.append(ExtensionResultItem(icon="images/icon.png", name="No episodes found", description="Please search again",
+            if episodes is None or episodes == "not found":
+                animes.append(ExtensionResultItem(icon="images/icon.png", name="Not found or not out yet", description="Please search again",
                                                        on_enter=DoNothingAction()))
             else:
                 for ep in range(0, int(episodes)):
                     count += 1
                     if count >= int(selection):
                         animes.append(ExtensionSmallResultItem(icon="images/icon.png", name="Episode "+str(count),
-                                                               on_enter=ExtensionCustomAction({"action": "episode", "number": count, "url": url}, keep_app_open=True)))
+                                                               on_enter=ExtensionCustomAction({"action": "episode", "number": count, "data": url}, keep_app_open=True)))
             return RenderResultListAction(animes)
+
+        elif str(args) == "h":
+            extension.done_writing_queue.put(True)
+            picked_history = extension.pick_history()
+
+            try:
+                link = picked_history[int(1)]
+            except:
+                return "error"
+
+            animes = []
+            count = 1
+            for picked in picked_history:
+                if count == 1:
+                    animes.append(ExtensionResultItem(icon="images/icon.png", name="Next episode: "+str(picked.replace(extension.base_url, "").replace("-", " ")),
+                                                      on_enter=ExtensionCustomAction({"action": "history", "data": picked}, keep_app_open=True)))
+                else:
+                    animes.append(ExtensionSmallResultItem(icon="images/icon.png", name="Next episode: "+str(picked.replace(extension.base_url, "").replace("-", " ")),
+                                                           on_enter=ExtensionCustomAction({"action": "history", "data": picked}, keep_app_open=True)))
+                count += 1
+            return RenderResultListAction(animes)
+
         else:
-            return RenderResultListAction([ExtensionSmallResultItem(icon="images/icon.png", name="Type s your anime", description="uLauncher anime",
+            return RenderResultListAction([ExtensionResultItem(icon="images/icon.png", name="Type s your anime", description="uLauncher anime",
                                                                     on_enter=DoNothingAction())])
