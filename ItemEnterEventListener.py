@@ -22,9 +22,6 @@ class ItemEnterEventListener(EventListener):
                 return RenderResultListAction([ExtensionResultItem(icon="images/icon.png", name="Unexpected error", description="Feel free to open a Issue on github: https://github.com/dankni95/ulauncher-anime/issues",
                                                                    on_enter=DoNothingAction())])
 
-            message = extension.play(
-                url, video_url, episode_link)
-
             Thread(target=extension.play, args=(
                 url, video_url, episode_link,)).start()
 
