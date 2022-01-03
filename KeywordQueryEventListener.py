@@ -27,7 +27,7 @@ class KeywordQueryEventListener(EventListener):
                 animes.append(ExtensionResultItem(icon="images/icon.png", name="No anime found by this name", description="Please search again",
                                                        on_enter=DoNothingAction()))
             else:
-                animes.append(ExtensionResultItem(icon="images/icon.png", name=link[0], description="Select anime",
+                animes.append(ExtensionResultItem(icon="images/icon.png", name=link[0].replace(extension.base_url, "").replace("-", " ").capitalize(), description="Select anime",
                                                   on_enter=SetUserQueryAction("ani type episode nr > ")))
             return RenderResultListAction(animes)
 

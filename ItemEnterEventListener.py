@@ -13,12 +13,8 @@ class ItemEnterEventListener(EventListener):
 
         if data["action"] == "episode":
             url = data["data"]
-            print(url)
-
             episode_link = extension.episode_selection(
                 url, data["number"])
-
-            print(episode_link)
 
             video_url = extension.get_urls(episode_link)
 
