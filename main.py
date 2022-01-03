@@ -1,6 +1,5 @@
 
 # imports
-import subprocess as sp
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -11,6 +10,11 @@ import re
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import subprocess
+import time
+import sys
+import queue
+from pathlib import Path
+from threading import Thread
 
 
 from ulauncher.api.client.Extension import Extension
@@ -53,15 +57,15 @@ class UlauncherAnime(Extension):
 
     links = None
 
+    """global base url"""
+
+    base_url = "https://gogoanime.wiki/"
+
     def query(self, search_input):
-        global base_url
 
-        """global base url"""
-
-        base_url = "https://gogoanime.wiki/"
         global links
         links = []
-        search_url = base_url + "/search.html?keyword=" + search_input
+        search_url = self.base_url + "/search.html?keyword=" + search_input
 
         for i in range(self.pages(search_url)):
             querys = requests.get(search_url + "&page=" + str(i + 1))
@@ -90,8 +94,7 @@ class UlauncherAnime(Extension):
         selection = []
 
         for j in links:
-            selection.append("[" + str(list_index) + "]" +
-                             " " + str(j.replace("/category/", "")))
+            selection.append(str(j.replace("/category/", "")))
 
             list_index += 1
 
@@ -107,7 +110,7 @@ class UlauncherAnime(Extension):
         except:
             return "error"
 
-        link = base_url + link.replace("/", "", 1)
+        link = self.base_url + link.replace("/", "", 1)
 
         return link
 
@@ -131,8 +134,6 @@ class UlauncherAnime(Extension):
         return self.get_video_url(embed_url)
 
     """url"""
-
-    os.environ['WDM_LOG_LEVEL'] = '0'
 
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
@@ -159,10 +160,14 @@ class UlauncherAnime(Extension):
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
         link = soup.find("a", {"href": "#", "rel": "100"})
+        if link is None:
+            return "episode not found"
+
         return f'https:{link["data-video"]}'
 
     def get_video_url(self, embed_url):
         print("Getting video url")
+
         try:
             try:
                 """new code"""
@@ -191,6 +196,11 @@ class UlauncherAnime(Extension):
                 except:
                     return "error"
 
+                print(embed_url)
+
+                if embed_url == "episode not found":
+                    return embed_url
+
                 browser.get(embed_url)
                 # start the player in browser so the video-url is generated
 
@@ -210,27 +220,118 @@ class UlauncherAnime(Extension):
                 browser.quit()
 
         except Exception as e:
+            print(e)
             return "error"
 
         return link
 
     def play(self, embed_url, video_url, link, start_at="0"):
         player = "mpv"
-        player_command = player + f" --force-media-title={link.replace(base_url, '')} " + f" --start=+{str(start_at)}" + \
+        player_command = player + f" --force-media-title={link.replace(self.base_url, '')} " + f" --start=+{str(start_at)}" + \
             " --cache=yes " + \
             f'--http-header-fields="Referer: {embed_url}" ' + f"'{video_url}'"
         try:
-            sp.Popen(player_command,
-                     stdout=sp.PIPE,
-                     shell=True,
-                     preexec_fn=os.setsid,
-                     stderr=sp.DEVNULL)
+            sub_proc = subprocess.Popen(player_command,
+                                        stdout=subprocess.PIPE,
+                                        shell=True,
+                                        preexec_fn=os.setsid,
+                                        stderr=subprocess.DEVNULL)
 
-        except sp.CalledProcessError as grepexc:
+        except subprocess.CalledProcessError as grepexc:
             print("error code", grepexc.returncode, grepexc.output)
             return "error"
 
+        Thread(target=self.write_history, args=(link,)).start()
+
         return "Success"
+
+    """History"""
+
+    done_writing_queue = queue.Queue()
+    history_folder_path = Path(Path(__file__).parent) / "history"
+    history_file_path = history_folder_path / "history.txt"
+
+    def write_history(self, link):
+
+        # Make the history folder and file if they doesn't exist
+        try:
+            self.history_folder_path.mkdir(parents=True, exist_ok=True)
+            self.history_file_path.touch(exist_ok=True)
+        except PermissionError:
+            print(
+                "Unable to write/read to where history file is suposed to be due to permissions.")
+            return "error"
+
+        with self.history_file_path.open('r') as history_file:
+            data = history_file.readlines()
+
+        index = 0
+        in_data = False
+
+        for i in data:
+            anime = link.rsplit("-", 1)[0]
+            if anime in i:
+                print("found: "+link)
+                index = index
+                in_data = True
+                break
+            else:
+                pass
+
+            index += 1
+
+        if in_data == True:
+            ep = link.rsplit("-", 1)[1].replace("-", "")
+            episode = int(ep) + 1
+
+            next_episode = anime + "-" + str(episode) + "\n"
+            data[index] = ""
+            data.append(next_episode)
+            data.reverse()
+            with self.history_file_path.open('w') as history_file:
+                for element in data:
+                    history_file.write(element)
+        else:
+            with self.history_file_path.open('a') as history_file:
+                link.reverse()
+                history_file.write(link + "\n")
+
+        self.done_writing_queue.put(True)
+
+    def read_history(self):
+        while True:
+            check = self.done_writing_queue.get()
+            if check == True:
+                break
+            time.sleep(0.2)
+
+        try:
+            with self.history_file_path.open('r') as history_file:
+                data = history_file.readlines()
+                links = []
+                resume_seconds = []
+
+            for i in data:
+                links.append(i)
+
+        except:
+            pass
+
+        return links, resume_seconds
+
+    def pick_history(self):
+
+        # read history and reverse lists so last history-point is first in selection
+        history = self.read_history()
+        links = history[0]
+
+        if not links:
+            return "error"
+        animes = []
+        for i in links:
+            animes.append(i.rstrip())
+
+        return animes
 
 
 if __name__ == '__main__':
