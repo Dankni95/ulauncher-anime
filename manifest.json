@@ -9,7 +9,7 @@
 	},
 	"preferences": [
 		{
-			"id": "playerctl",
+			"id": "ulauncher",
 			"type": "keyword",
 			"name": "Ulauncher Extension",
 			"description": "Extension keyword",
@@ -18,8 +18,8 @@
 		{
 			"id": "change_quality",
 			"type": "select",
-			"name": "Change icon theme",
-			"description": "Icon theme color",
+			"name": "Change video quality",
+			"description": "Select preferred video quality",
 			"default_value": 1080,
 			"options": [
 			  {"value": "360", "text": "360p"},
