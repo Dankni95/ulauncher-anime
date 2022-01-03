@@ -339,7 +339,12 @@ class UlauncherAnime(Extension):
                     history_file.write(element)
         else:
             with self.history_file_path.open('a') as history_file:
-                history_file.write(link + "\n")
+                ep = link.rsplit("-", 1)[1].replace("-", "")
+                episode = int(ep) + 1
+
+                next_episode = link.rsplit("-",1)[0] + "-" + str(episode)
+                
+                history_file.write(next_episode + "\n")
 
         self.done_writing_queue.put(True)
 
