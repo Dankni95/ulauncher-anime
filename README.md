@@ -58,6 +58,11 @@ To search `ani s <your anime>`
  `ani h ` shows next episode of previously watched anime.<br>
 ![image](https://user-images.githubusercontent.com/71786017/147886901-4c66d977-d7f0-4831-a252-05a8514642d2.png)
 
+## Quality
+Edit video quality in ulauncher extension preferences.
+All videos will be played in this quality if possible, else it will default to best possible quality.
+
+![image](https://user-images.githubusercontent.com/71786017/147924386-a7754b07-9ec9-42c1-aa48-6cced5665b13.png)
 
 
 ## Development
