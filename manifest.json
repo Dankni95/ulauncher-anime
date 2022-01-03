@@ -1,6 +1,6 @@
 {
 	"required_api_version": "^2.0.0",
-	"name": "Ulauncher Anime",
+	"name": "Watch anime",
 	"description": "Watch anime the right way",
 	"developer_name": "Dankni95",
 	"icon": "images/icon.png",
@@ -9,11 +9,24 @@
 	},
 	"preferences": [
 		{
-			"id": "ulauncher anime",
+			"id": "playerctl",
 			"type": "keyword",
-			"name": "Ulancher Anime Extension",
+			"name": "Ulauncher Extension",
 			"description": "Extension keyword",
 			"default_value": "ani"
-		}
+		},
+		{
+			"id": "change_quality",
+			"type": "select",
+			"name": "Change icon theme",
+			"description": "Icon theme color",
+			"default_value": 1080,
+			"options": [
+			  {"value": "360", "text": "360p"},
+			  {"value": "480", "text": "480p"},
+			  {"value": "780", "text": "780p"},
+			  {"value": "1080", "text": "1080p"}
+			]
+		  }
 	]
 }
