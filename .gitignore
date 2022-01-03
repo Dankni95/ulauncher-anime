@@ -48,4 +48,5 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+/.vscode
 /history

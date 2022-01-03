@@ -258,8 +258,6 @@ class UlauncherAnime(Extension):
                 else:
                     quality = qualitys.index(qualitys[0])
             else:
-                print(qualitys)
-                print(quality)
                 if quality in qualitys:
                     quality = qualitys.index(quality)
                 else:
@@ -336,13 +334,11 @@ class UlauncherAnime(Extension):
             next_episode = anime + "-" + str(episode) + "\n"
             data[index] = ""
             data.append(next_episode)
-            data.reverse()
             with self.history_file_path.open('w') as history_file:
                 for element in data:
                     history_file.write(element)
         else:
             with self.history_file_path.open('a') as history_file:
-                link.reverse()
                 history_file.write(link + "\n")
 
         self.done_writing_queue.put(True)
@@ -358,29 +354,35 @@ class UlauncherAnime(Extension):
             with self.history_file_path.open('r') as history_file:
                 data = history_file.readlines()
                 links = []
-                resume_seconds = []
+                if len(data) == 1:
+                    return data
+                else:
+                    for urls in data:
+                        links.append(urls)
+                    
+            
 
-            for i in data:
-                links.append(i)
-
-        except:
-            pass
-
-        return links, resume_seconds
+        except Exception as e:
+            print(e)
+            return "empty history"
+            
+        return links
 
     def pick_history(self):
 
         # read history and reverse lists so last history-point is first in selection
         history = self.read_history()
-        links = history[0]
+        if history == "empty history":
+            return "empty history"
+            
 
-        if not links:
+        if not history:
             return "error"
-        animes = []
-        for i in links:
-            animes.append(i.rstrip())
+        
+        history.reverse()
 
-        return animes
+    
+        return history
 
 
 if __name__ == '__main__':

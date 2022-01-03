@@ -57,20 +57,20 @@ class KeywordQueryEventListener(EventListener):
         elif str(args) == "h":
             extension.done_writing_queue.put(True)
             picked_history = extension.pick_history()
-
-            try:
-                link = picked_history[int(1)]
-            except:
-                return "error"
+            
+            if str(picked_history) == "error" or str(picked_history) == "empty history" :
+                return RenderResultListAction([ExtensionResultItem(icon="images/icon.png", name="No history found or unexpected error", description="Feel free to open a Issue on github: https://github.com/dankni95/ulauncher-anime/issues",
+                                                                   on_enter=DoNothingAction())])
 
             animes = []
             count = 1
             for picked in picked_history:
+                anime = str(picked.replace(extension.base_url, "").replace("-", " ")).rstrip()
                 if count == 1:
-                    animes.append(ExtensionResultItem(icon="images/icon.png", name="Next episode: "+str(picked.replace(extension.base_url, "").replace("-", " ")),
+                    animes.append(ExtensionResultItem(icon="images/icon.png", name="Next episode: "+anime,
                                                       on_enter=ExtensionCustomAction({"action": "history", "data": picked}, keep_app_open=True)))
                 else:
-                    animes.append(ExtensionSmallResultItem(icon="images/icon.png", name="Next episode: "+str(picked.replace(extension.base_url, "").replace("-", " ")),
+                    animes.append(ExtensionSmallResultItem(icon="images/icon.png", name="Next episode: "+anime,
                                                            on_enter=ExtensionCustomAction({"action": "history", "data": picked}, keep_app_open=True)))
                 count += 1
             return RenderResultListAction(animes)

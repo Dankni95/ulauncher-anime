@@ -24,7 +24,7 @@
 			"options": [
 			  {"value": "360", "text": "360p"},
 			  {"value": "480", "text": "480p"},
-			  {"value": "780", "text": "780p"},
+			  {"value": "720", "text": "720p"},
 			  {"value": "1080", "text": "1080p"}
 			]
 		  }

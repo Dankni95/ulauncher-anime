@@ -34,7 +34,7 @@ class ItemEnterEventListener(EventListener):
                 temp_url.split(extension.base_url)[1]
 
             episode_link = extension.episode_selection(
-                url, anime[1])
+                url, anime[1].rstrip())
 
             video_url = extension.get_urls(episode_link)
 
