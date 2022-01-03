@@ -25,7 +25,8 @@ class ItemEnterEventListener(EventListener):
             message = extension.play(
                 url, video_url, episode_link)
 
-            print(message)
+            Thread(target=extension.play, args=(
+                url, video_url, episode_link,)).start()
 
         if data["action"] == "history":
             data = data["data"]
@@ -47,8 +48,7 @@ class ItemEnterEventListener(EventListener):
                 return RenderResultListAction([ExtensionResultItem(icon="images/icon.png", name="Episode not found", description="The episode is probably not out yet",
                                                                    on_enter=DoNothingAction())])
 
-            message = extension.play(
-                url, video_url, episode_link)
-            print(message)
+            Thread(target=extension.play, args=(
+                url, video_url, episode_link,)).start()
 
         """find a way to close ulauncher when anime loads"""

@@ -11,23 +11,15 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import subprocess
 import time
-import sys
 import queue
 from pathlib import Path
 from threading import Thread
 
 
 from ulauncher.api.client.Extension import Extension
-from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent, PreferencesEvent, PreferencesUpdateEvent
+from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent
 from KeywordQueryEventListener import KeywordQueryEventListener
 from ItemEnterEventListener import ItemEnterEventListener
-from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
-from ulauncher.api.shared.action.DoNothingAction import DoNothingAction
-from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
-from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
-from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
-from ulauncher.api.client.EventListener import EventListener
-from ulauncher.api.shared.action.SetUserQueryAction import SetUserQueryAction
 
 
 class UlauncherAnime(Extension):
@@ -44,7 +36,6 @@ class UlauncherAnime(Extension):
         pages = []
 
         querys = requests.get(url)
-        print(querys)
         soup = BeautifulSoup(querys.content, "html.parser")
         for link in soup.find_all('a', attrs={'data-page': re.compile("^ *\d[\d ]*$")}):
             pages.append(link.get('data-page'))
@@ -196,8 +187,6 @@ class UlauncherAnime(Extension):
                 except:
                     return "error"
 
-                print(embed_url)
-
                 if embed_url == "episode not found":
                     return embed_url
 
@@ -208,8 +197,23 @@ class UlauncherAnime(Extension):
                     'document.getElementsByClassName("jw-icon")[2].click()')
                 html_source = browser.page_source
                 soup = BeautifulSoup(html_source, "html.parser")
+
                 # get quality options
-                """skipped"""
+                try:
+                    user_quality = self.preferences['change_quality']
+
+                    qualitys = soup.find(id="jw-settings-submenu-quality")
+
+                    user_quality = self.quality(qualitys, user_quality)
+                    # Click the quality, the user picked, in the quality selection, so the right link is being generated.
+                    browser.execute_script(
+                        "document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()"
+                        .format(user_quality + 1))
+                except:
+                    print(
+                        "Something went wrong with the quality selection. Loading default quality."
+                    )
+                    return "error"
                 # extract video link
                 html_source = browser.page_source
                 soup = BeautifulSoup(html_source, "html.parser")
@@ -224,6 +228,52 @@ class UlauncherAnime(Extension):
             return "error"
 
         return link
+
+    def quality(self, html_code, quality):
+
+        if quality == None:
+            quality = "best"
+        else:
+            pass
+
+        try:
+
+            qualitys = re.findall(r'\d+ P', str(html_code))
+
+            temp_list = []
+            for i in qualitys:
+                if i not in temp_list:
+                    temp_list.append(i)
+                else:
+                    pass
+            qualitys.clear()
+            qualitys.extend(temp_list)
+
+            for i in range(len(qualitys)):
+                qualitys[i] = qualitys[i].replace(" P", "")
+
+            if quality == "best" or quality == "worst":
+                if quality == "best":
+                    quality = qualitys.index(qualitys[-1])
+                else:
+                    quality = qualitys.index(qualitys[0])
+            else:
+                print(qualitys)
+                print(quality)
+                if quality in qualitys:
+                    quality = qualitys.index(quality)
+                else:
+                    quality = qualitys.index(qualitys[-1])
+                    print("Your quality is not avalible using: " +
+                          qualitys[quality] + "p")
+                    time.sleep(1.5)
+                    pass
+
+        except:
+
+            pass
+
+        return quality
 
     def play(self, embed_url, video_url, link, start_at="0"):
         player = "mpv"
@@ -271,7 +321,6 @@ class UlauncherAnime(Extension):
         for i in data:
             anime = link.rsplit("-", 1)[0]
             if anime in i:
-                print("found: "+link)
                 index = index
                 in_data = True
                 break
