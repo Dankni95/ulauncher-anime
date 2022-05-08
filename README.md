@@ -1,7 +1,7 @@
 # [uLauncher](https://github.com/Ulauncher/Ulauncher) anime extension for linux
 
 
-#UNMAINTAINED
+# UNMAINTAINED
 
 <p align="center">
    <img src="https://user-images.githubusercontent.com/71786017/147852497-269e49a5-f3ba-40ed-ae09-8053b7119ecb.gif" alt="animated" />
